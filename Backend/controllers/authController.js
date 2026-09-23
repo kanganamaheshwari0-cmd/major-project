@@ -2,18 +2,19 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// ===============================
+// REGISTER USER
+// ===============================
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, role } = req.body;
 
-    // Check required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         message: "Name, email and password are required",
       });
     }
 
-    // Check existing user
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -24,7 +25,6 @@ const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await User.create({
       name,
       email,
@@ -45,6 +45,9 @@ const registerUser = async (req, res) => {
   }
 };
 
+// ===============================
+// LOGIN USER
+// ===============================
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -63,6 +66,12 @@ const loginUser = async (req, res) => {
       });
     }
 
+    if (user.isBlocked) {
+      return res.status(403).json({
+        message: "Your account has been blocked",
+      });
+    }
+
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user.password
@@ -75,15 +84,15 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-  {
-    id: user._id,
-    role: user.role,
-  },
-  process.env.JWT_SECRET,
-  {
-    expiresIn: "7d",
-  }
-);
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.status(200).json({
       message: "Login successful",
@@ -92,7 +101,17 @@ const loginUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
+        profilePicture: user.profilePicture,
+        about: user.about,
+        skills: user.skills,
+        education: user.education,
+        experience: user.experience,
+        projects: user.projects,
+        github: user.github,
+        linkedin: user.linkedin,
+        portfolio: user.portfolio,
       },
     });
   } catch (error) {
@@ -103,7 +122,9 @@ const loginUser = async (req, res) => {
   }
 };
 
-
+// ===============================
+// GET CURRENT USER
+// ===============================
 const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -126,6 +147,106 @@ const getUser = async (req, res) => {
   }
 };
 
+// ===============================
+// UPDATE PROFILE
+// ===============================
+const updateProfile = async (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      about,
+      skills,
+      education,
+      experience,
+      projects,
+      github,
+      linkedin,
+      portfolio,
+    } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (name !== undefined) {
+      user.name = name;
+    }
+
+    if (phone !== undefined) {
+      user.phone = phone;
+    }
+
+    if (about !== undefined) {
+      user.about = about;
+    }
+
+    if (skills !== undefined) {
+      user.skills = skills;
+    }
+
+    if (education !== undefined) {
+      user.education = education;
+    }
+
+    if (experience !== undefined) {
+      user.experience = experience;
+    }
+
+    if (projects !== undefined) {
+      user.projects = projects;
+    }
+
+    if (github !== undefined) {
+      user.github = github;
+    }
+
+    if (linkedin !== undefined) {
+      user.linkedin = linkedin;
+    }
+
+    if (portfolio !== undefined) {
+      user.portfolio = portfolio;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        profilePicture: user.profilePicture,
+        about: user.about,
+        skills: user.skills,
+        education: user.education,
+        experience: user.experience,
+        projects: user.projects,
+        github: user.github,
+        linkedin: user.linkedin,
+        portfolio: user.portfolio,
+      },
+    });
+  } catch (error) {
+    console.log("Profile update error:", error);
+
+    res.status(500).json({
+      message: "Failed to update profile",
+      error: error.message,
+    });
+  }
+};
+
+// ===============================
+// STUDENT DASHBOARD
+// ===============================
 const studentDashboard = (req, res) => {
   res.status(200).json({
     message: "Welcome to Student Dashboard",
@@ -133,6 +254,9 @@ const studentDashboard = (req, res) => {
   });
 };
 
+// ===============================
+// LOGOUT USER
+// ===============================
 const logoutUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -155,7 +279,9 @@ const logoutUser = async (req, res) => {
       });
     }
 
-    user.revokedTokens.push(token);
+    if (!user.revokedTokens.includes(token)) {
+      user.revokedTokens.push(token);
+    }
 
     await user.save();
 
@@ -170,4 +296,14 @@ const logoutUser = async (req, res) => {
   }
 };
 
-module.exports = {registerUser,loginUser, getUser, studentDashboard,logoutUser};
+// ===============================
+// EXPORTS
+// ===============================
+module.exports = {
+  registerUser,
+  loginUser,
+  getUser,
+  updateProfile,
+  studentDashboard,
+  logoutUser,
+};

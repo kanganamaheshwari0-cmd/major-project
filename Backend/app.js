@@ -1,17 +1,32 @@
-const express = require('express');
+const express = require("express");
+const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const jobRoutes = require("./routes/jobRoutes");
+const applicationRoutes = require("./routes/applicationRoutes");
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+// AUTH ROUTES
+app.use("/api/v1/auth", authRoutes);
 
+// USER ROUTES
+app.use("/api/v1/users", userRoutes);
 
-// app.get("/", (req, res) => {
-//   res.send("JobConnect Backend is running");
-// });
+// JOB ROUTES
+app.use("/api/v1/job", jobRoutes);
+
+// APPLICATION ROUTES
+app.use("/api/v1/application", applicationRoutes);
 
 module.exports = app;

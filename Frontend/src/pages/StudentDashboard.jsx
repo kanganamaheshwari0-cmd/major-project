@@ -2,20 +2,28 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const StudentDashboard = () => {
-  const [jobs, setJobs] = useState([]);
+const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalStudents: 0,
+    totalRecruiters: 0,
+    totalJobs: 0,
+    totalApplications: 0,
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [appliedJobs, setAppliedJobs] = useState([]);
 
-  // Fetch Jobs
-  const fetchJobs = async () => {
+  // =========================
+  // FETCH ADMIN DASHBOARD DATA
+  // =========================
+
+  const fetchDashboard = async () => {
     try {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        "http://localhost:8080/api/v1/job",
+        "http://localhost:8080/api/v1/admin/dashboard",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -23,116 +31,63 @@ const StudentDashboard = () => {
         }
       );
 
-      setJobs(response.data.jobs);
+      console.log("Admin Dashboard:", response.data);
+
+      setStats(response.data.stats);
     } catch (error) {
       console.log(
-        "Jobs fetch failed:",
+        "Admin dashboard fetch failed:",
         error.response?.data?.message || error.message
       );
 
       setError(
         error.response?.data?.message ||
-          "Something went wrong"
+          "Failed to load admin dashboard"
       );
-    }
-  };
-
-  // Fetch My Applications
-  const fetchApplications = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        "http://localhost:8080/api/v1/application/my-applications",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setAppliedJobs(response.data.applications || []);
-    } catch (error) {
-      console.log(
-        "Applications fetch failed:",
-        error.response?.data?.message || error.message
-      );
-    }
-  };
-
-  // Load Dashboard
-  useEffect(() => {
-    const loadDashboard = async () => {
-      await Promise.all([
-        fetchJobs(),
-        fetchApplications(),
-      ]);
-
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
-    loadDashboard();
+  useEffect(() => {
+    fetchDashboard();
   }, []);
 
-  // Apply for Job
-  const handleApply = async (jobId) => {
-    try {
-      setMessage("");
-      setError("");
-
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        `http://localhost:8080/api/v1/application/${jobId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Application:", response.data);
-
-      setMessage("Job applied successfully!");
-
-      fetchApplications();
-    } catch (error) {
-      console.log(
-        "Application failed:",
-        error.response?.data?.message || error.message
-      );
-
-      setError(
-        error.response?.data?.message ||
-          "Application failed"
-      );
-    }
-  };
+  // =========================
+  // LOADING
+  // =========================
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#020712] text-gray-900 dark:text-white flex items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-[#020712] text-gray-900 dark:text-white flex items-center justify-center">
         <p className="text-lg text-gray-600 dark:text-gray-400">
-          Loading dashboard...
+          Loading admin dashboard...
         </p>
       </div>
     );
   }
+
+  // =========================
+  // UI
+  // =========================
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#020712] text-gray-900 dark:text-white transition-colors duration-300">
 
       <div className="flex">
 
-        {/* SIDEBAR */}
-        <aside className="w-64 min-h-[calc(100vh-80px)] bg-gray-50 dark:bg-[#0b1220] border-r border-gray-200 dark:border-gray-800 p-5 transition-colors duration-300">
+        {/* =========================
+            SIDEBAR
+        ========================= */}
 
-          {/* Profile */}
+        <aside className="w-64 min-h-[calc(100vh-80px)] bg-gray-50 dark:bg-[#0b1220] border-r border-gray-200 dark:border-gray-800 p-5">
+
+          {/* ADMIN PROFILE */}
+
           <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
 
-            <div className="w-11 h-11 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white">
-              K
+            <div className="w-11 h-11 bg-purple-600 rounded-full flex items-center justify-center font-bold text-white">
+              A
             </div>
 
             <div>
@@ -141,235 +96,263 @@ const StudentDashboard = () => {
               </p>
 
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Student
+                Admin
               </p>
             </div>
 
           </div>
 
           {/* MENU */}
+
           <div className="space-y-2">
 
+            {/* DASHBOARD */}
+
             <Link
-              to="/student-dashboard"
-              className="flex items-center gap-3 bg-blue-600 text-white px-4 py-3 rounded-lg"
+              to="/admin-dashboard"
+              className="flex items-center gap-3 bg-purple-600 text-white px-4 py-3 rounded-lg"
             >
               <span>▣</span>
               Dashboard
             </Link>
 
+            {/* USERS */}
+
+            <Link
+              to="/admin/users"
+              className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111827] px-4 py-3 rounded-lg transition"
+            >
+              <span>👥</span>
+              Users
+            </Link>
+
+            {/* JOBS */}
+
             <Link
               to="/jobs"
               className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111827] px-4 py-3 rounded-lg transition"
             >
-              <span>⌕</span>
-              Find Jobs
+              <span>💼</span>
+              Jobs
             </Link>
 
+            {/* APPLICATIONS */}
+
             <Link
-              to="/my-applications"
+              to="/admin/applications"
               className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111827] px-4 py-3 rounded-lg transition"
             >
               <span>▤</span>
               Applications
             </Link>
 
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111827] px-4 py-3 rounded-lg transition"
-            >
-              <span>◯</span>
-              Profile
-            </Link>
-
           </div>
 
         </aside>
 
-        {/* MAIN CONTENT */}
+        {/* =========================
+            MAIN CONTENT
+        ========================= */}
+
         <main className="flex-1 p-8">
 
           {/* HEADER */}
+
           <div className="mb-8">
 
             <h1 className="text-3xl font-bold">
-              Good Morning, Kangana! 👋
+              Admin Dashboard 👋
             </h1>
 
             <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Here’s what's happening with your job search.
+              Manage and monitor your JobConnect platform.
             </p>
 
           </div>
 
-          {/* SUCCESS MESSAGE */}
-          {message && (
-            <div className="bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 p-4 rounded-lg mb-6">
-              {message}
-            </div>
-          )}
+          {/* ERROR */}
 
-          {/* ERROR MESSAGE */}
           {error && (
             <div className="bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 p-4 rounded-lg mb-6">
               {error}
             </div>
           )}
 
-          {/* STAT CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+          {/* =========================
+              STAT CARDS
+          ========================= */}
 
-            {/* Available Jobs */}
-            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6 transition-colors duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+
+            {/* TOTAL USERS */}
+
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
 
               <p className="text-gray-600 dark:text-gray-400">
-                Available Jobs
+                Total Users
               </p>
 
               <h2 className="text-3xl font-bold mt-2">
-                {jobs.length}
+                {stats.totalUsers}
               </h2>
 
             </div>
 
-            {/* Applied Jobs */}
-            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6 transition-colors duration-300">
+            {/* TOTAL STUDENTS */}
+
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
 
               <p className="text-gray-600 dark:text-gray-400">
-                Applied Jobs
-              </p>
-
-              <h2 className="text-3xl font-bold mt-2">
-                {appliedJobs.length}
-              </h2>
-
-            </div>
-
-            {/* Profile Status */}
-            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6 transition-colors duration-300">
-
-              <p className="text-gray-600 dark:text-gray-400">
-                Profile Status
+                Total Students
               </p>
 
               <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 mt-2">
-                Active
+                {stats.totalStudents}
+              </h2>
+
+            </div>
+
+            {/* TOTAL RECRUITERS */}
+
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+
+              <p className="text-gray-600 dark:text-gray-400">
+                Total Recruiters
+              </p>
+
+              <h2 className="text-3xl font-bold text-purple-600 dark:text-purple-500 mt-2">
+                {stats.totalRecruiters}
+              </h2>
+
+            </div>
+
+            {/* TOTAL JOBS */}
+
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+
+              <p className="text-gray-600 dark:text-gray-400">
+                Total Jobs
+              </p>
+
+              <h2 className="text-3xl font-bold text-green-600 dark:text-green-500 mt-2">
+                {stats.totalJobs}
+              </h2>
+
+            </div>
+
+            {/* TOTAL APPLICATIONS */}
+
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+
+              <p className="text-gray-600 dark:text-gray-400">
+                Total Applications
+              </p>
+
+              <h2 className="text-3xl font-bold text-orange-600 dark:text-orange-500 mt-2">
+                {stats.totalApplications}
               </h2>
 
             </div>
 
           </div>
 
-          {/* RECOMMENDED JOBS */}
-          <div>
+          {/* =========================
+              OVERVIEW
+          ========================= */}
 
-            <div className="flex items-center justify-between mb-5">
+          <div className="mb-5">
 
-              <h2 className="text-2xl font-bold">
-                Recommended Jobs
-              </h2>
+            <h2 className="text-2xl font-bold">
+              Platform Overview
+            </h2>
 
-              <Link
-                to="/jobs"
-                className="text-blue-600 dark:text-blue-500 hover:text-blue-700 dark:hover:text-blue-400"
-              >
-                View All
-              </Link>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+
+            {/* USERS OVERVIEW */}
+
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+
+              <h3 className="text-xl font-bold mb-5">
+                Users
+              </h3>
+
+              <div className="space-y-4">
+
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Students
+                  </span>
+
+                  <span className="font-semibold">
+                    {stats.totalStudents}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Recruiters
+                  </span>
+
+                  <span className="font-semibold">
+                    {stats.totalRecruiters}
+                  </span>
+                </div>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between">
+
+                  <span className="font-semibold">
+                    Total Users
+                  </span>
+
+                  <span className="font-bold">
+                    {stats.totalUsers}
+                  </span>
+
+                </div>
+
+              </div>
 
             </div>
 
-            {jobs.length === 0 ? (
+            {/* JOB OVERVIEW */}
 
-              <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-8">
+            <div className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
 
-                <p className="text-gray-600 dark:text-gray-400">
-                  No available jobs.
-                </p>
+              <h3 className="text-xl font-bold mb-5">
+                Jobs & Applications
+              </h3>
 
-              </div>
+              <div className="space-y-4">
 
-            ) : (
+                <div className="flex justify-between">
 
-              <div className="grid md:grid-cols-2 gap-5">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Total Jobs
+                  </span>
 
-                {jobs.slice(0, 4).map((job) => {
+                  <span className="font-semibold">
+                    {stats.totalJobs}
+                  </span>
 
-                  const isApplied = appliedJobs.some(
-                    (application) =>
-                      application.job?._id === job._id
-                  );
+                </div>
 
-                  return (
-                    <div
-                      key={job._id}
-                      className="bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:border-blue-500 dark:hover:border-blue-600 transition-colors duration-300"
-                    >
+                <div className="flex justify-between">
 
-                      {/* Job Header */}
-                      <div className="flex justify-between items-start mb-4">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Total Applications
+                  </span>
 
-                        <div>
+                  <span className="font-semibold">
+                    {stats.totalApplications}
+                  </span>
 
-                          <h3 className="text-xl font-bold">
-                            {job.title}
-                          </h3>
-
-                          <p className="text-blue-600 dark:text-blue-500 mt-1">
-                            {job.company}
-                          </p>
-
-                        </div>
-
-                        <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs px-3 py-1 rounded-full">
-                          {job.employment}
-                        </span>
-
-                      </div>
-
-                      {/* Description */}
-                      <p className="text-gray-600 dark:text-gray-400 mb-5">
-                        {job.description}
-                      </p>
-
-                      {/* Details */}
-                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-
-                        <p>
-                          📍 {job.location}
-                        </p>
-
-                        <p>
-                          💰 ₹{job.salary}
-                        </p>
-
-                        <p>
-                          🛠️ {job.skills?.join(", ")}
-                        </p>
-
-                      </div>
-
-                      {/* Apply */}
-                      <button
-                        onClick={() => handleApply(job._id)}
-                        disabled={isApplied}
-                        className={`w-full mt-6 py-3 rounded-lg font-semibold transition ${
-                          isApplied
-                            ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700 text-white"
-                        }`}
-                      >
-                        {isApplied
-                          ? "Applied"
-                          : "Apply Now"}
-                      </button>
-
-                    </div>
-                  );
-                })}
+                </div>
 
               </div>
 
-            )}
+            </div>
 
           </div>
 
@@ -381,4 +364,4 @@ const StudentDashboard = () => {
   );
 };
 
-export default StudentDashboard;
+export default AdminDashboard;

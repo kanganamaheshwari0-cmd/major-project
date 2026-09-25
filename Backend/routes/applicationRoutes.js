@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const {
@@ -5,32 +6,58 @@ const {
   getMyApplications,
   getApplicants,
   updateApplicationStatus,
+  getAllApplications,
 } = require("../controllers/applicationController");
 
 const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-// My Applications
+// =====================================================
+// ADMIN - GET ALL APPLICATIONS
+// =====================================================
+
+router.get(
+  "/all",
+  authMiddleware,
+  roleMiddleware("admin"),
+  getAllApplications
+);
+
+// =====================================================
+// STUDENT - MY APPLICATIONS
+// =====================================================
+
 router.get(
   "/my-applications",
   authMiddleware,
   getMyApplications
 );
 
-// Recruiter - Get Applicants
+// =====================================================
+// RECRUITER - GET APPLICANTS
+// =====================================================
+
 router.get(
   "/applicants",
   authMiddleware,
   getApplicants
 );
 
-// Apply for Job
+// =====================================================
+// STUDENT - APPLY FOR JOB
+// =====================================================
+
 router.post(
   "/:jobId",
   authMiddleware,
   applyForJob
 );
+
+// =====================================================
+// RECRUITER - UPDATE APPLICATION STATUS
+// =====================================================
 
 router.patch(
   "/:applicationId/status",
@@ -39,3 +66,4 @@ router.patch(
 );
 
 module.exports = router;
+

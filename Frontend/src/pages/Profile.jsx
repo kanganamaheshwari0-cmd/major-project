@@ -23,9 +23,7 @@ const Profile = () => {
     portfolio: "",
   });
 
-  // ===============================
   // GET PROFILE
-  // ===============================
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -82,16 +80,12 @@ const Profile = () => {
     }
   };
 
-  // ===============================
   // LOAD PROFILE
-  // ===============================
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  // ===============================
   // HANDLE INPUT
-  // ===============================
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -101,9 +95,7 @@ const Profile = () => {
     }));
   };
 
-  // ===============================
   // UPDATE PROFILE
-  // ===============================
   const handleUpdate = async (e) => {
     e.preventDefault();
 
@@ -167,9 +159,7 @@ const Profile = () => {
     }
   };
 
-  // ===============================
   // LOADING
-  // ===============================
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#020712] text-gray-900 dark:text-white flex items-center justify-center">
@@ -180,9 +170,7 @@ const Profile = () => {
     );
   }
 
-  // ===============================
   // ERROR
-  // ===============================
   if (error && !user) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#020712] text-gray-900 dark:text-white flex flex-col items-center justify-center gap-4">
@@ -276,9 +264,7 @@ const Profile = () => {
 
           {!editMode ? (
 
-            /* ===============================
-               VIEW MODE
-            =============================== */
+              //  VIEW MODE
 
             <div>
 
@@ -447,9 +433,7 @@ const Profile = () => {
 
           ) : (
 
-            /* ===============================
-               EDIT MODE
-            =============================== */
+              //  EDIT MODE
 
             <form
               onSubmit={handleUpdate}

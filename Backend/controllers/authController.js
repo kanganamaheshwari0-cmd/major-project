@@ -2,9 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// ===============================
 // REGISTER USER
-// ===============================
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, role } = req.body;
@@ -147,9 +145,7 @@ const getUser = async (req, res) => {
   }
 };
 
-// ===============================
 // UPDATE PROFILE
-// ===============================
 const updateProfile = async (req, res) => {
   try {
     const {
@@ -244,9 +240,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// ===============================
 // STUDENT DASHBOARD
-// ===============================
 const studentDashboard = (req, res) => {
   res.status(200).json({
     message: "Welcome to Student Dashboard",
@@ -254,9 +248,7 @@ const studentDashboard = (req, res) => {
   });
 };
 
-// ===============================
 // LOGOUT USER
-// ===============================
 const logoutUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -296,9 +288,7 @@ const logoutUser = async (req, res) => {
   }
 };
 
-// ===============================
 // EXPORTS
-// ===============================
 module.exports = {
   registerUser,
   loginUser,

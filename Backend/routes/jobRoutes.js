@@ -36,7 +36,7 @@ router.patch(
 router.delete(
   "/:id",
   authMiddleware,
-  roleMiddleware("recruiter"),
+  roleMiddleware("recruiter","admin"),
   deleteJob
 );
 

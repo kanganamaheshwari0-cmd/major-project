@@ -1,11 +1,11 @@
-
 const express = require("express");
 
 const {
-  updateProfile,
-  getProfile,
-  toggleBlockUser,
-} = require("../controllers/userController");
+  adminDashboard,
+  getAllUsers,
+  toggleUserBlock,
+  deleteUser,
+} = require("../controllers/adminController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
@@ -13,36 +13,47 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 const router = express.Router();
 
 // ===============================
-// GET PROFILE
+// ADMIN DASHBOARD
 // ===============================
 
 router.get(
-  "/getAll",
+  "/dashboard",
   authMiddleware,
-  getProfile
+  roleMiddleware("admin"),
+  adminDashboard
 );
 
 // ===============================
-// UPDATE PROFILE
+// GET ALL USERS
 // ===============================
 
-router.patch(
-  "/update/:id",
+router.get(
+  "/users",
   authMiddleware,
-  updateProfile
+  roleMiddleware("admin"),
+  getAllUsers
 );
 
 // ===============================
 // BLOCK / UNBLOCK USER
-// ADMIN ONLY
 // ===============================
 
 router.patch(
-  "/block/:id",
+  "/users/:userId/block",
   authMiddleware,
   roleMiddleware("admin"),
-  toggleBlockUser
+  toggleUserBlock
+);
+
+// ===============================
+// DELETE USER
+// ===============================
+
+router.delete(
+  "/users/:userId",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteUser
 );
 
 module.exports = router;
-
